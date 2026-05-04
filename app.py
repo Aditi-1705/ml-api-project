@@ -3,18 +3,20 @@ from pydantic import BaseModel
 import joblib
 import numpy as np
 
+
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Enable CORS (VERY IMPORTANT for frontend)
+# 🔥 ADD THIS BLOCK EXACTLY
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # allow all origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Load trained model
 model = joblib.load("model.pkl")
