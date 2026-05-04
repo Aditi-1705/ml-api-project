@@ -55,32 +55,50 @@
 <div class="box">
     <h2>Breast Cancer Prediction</h2>
 
-    <textarea id="input">
-[14.0,20.0,90.0,600.0,0.1,0.2,0.15,0.1,0.2,0.06,0.3,1.2,2.0,20.0,0.01,0.03,0.04,0.02,0.02,0.003,16.0,25.0,100.0,800.0,0.15,0.3,0.4,0.2,0.3,0.08]
-    </textarea>
+    
 
-    <br>
 
-    <button onclick="predict()">Predict</button>
+<!-- UI elements -->
+<textarea id="input"></textarea>
+<button onclick="predict()">Predict</button>
+<p id="result"></p>
 
-    <p id="result"></p>
-</div>
-
+<!-- Script must be HERE -->
 <script>
 function predict() {
-    let features = JSON.parse(document.getElementById("input").value);
+    console.log("Trying API...");
+
+    let input = document.getElementById("input").value;
+
+    let features;
+    try {
+        features = JSON.parse(input);
+    } catch (e) {
+        document.getElementById("result").innerText = "Invalid input format";
+        return;
+    }
 
     fetch("https://ml-api-project-cquw.onrender.com/predict", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({features: features})
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ features: features })
     })
-    .then(res => res.json())
+    .then(res => {
+        console.log("Response received:", res);
+        return res.json();
+    })
     .then(data => {
+        console.log("Data:", data);
+
         document.getElementById("result").innerText =
-            document.getElementById("result").innerText =
-    "Prediction: " + data.result +
-    " | Confidence: " + data.confidence + "%";
+            "Prediction: " + data.result + " | Confidence: " + data.confidence + "%";
+    })
+    .catch(err => {
+        console.log("ERROR:", err);
+        document.getElementById("result").innerText =
+            "Backend not reachable. Wait 30 sec & try again.";
     });
 }
 </script>
