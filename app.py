@@ -25,10 +25,15 @@ def home():
 
 @app.post("/predict")
 def predict(data: InputData):
-    arr = np.array([data.features])
-    prediction = model.predict(arr)[0]
+    features = data.features
+
+    prediction = model.predict([features])[0]
+    probability = model.predict_proba([features])[0][1]
+
+    result = "Malignant" if prediction == 1 else "Benign"
 
     return {
         "prediction": int(prediction),
-        "result": "Malignant" if prediction == 0 else "Benign"
+        "result": result,
+        "confidence": round(probability * 100, 2)
     }
