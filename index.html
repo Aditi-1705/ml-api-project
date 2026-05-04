@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Breast Cancer Predictor</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .box {
+            background: white;
+            color: black;
+            padding: 30px;
+            border-radius: 10px;
+            width: 50%;
+            margin: auto;
+        }
+
+        textarea {
+            width: 90%;
+            height: 100px;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>Breast Cancer Prediction</h2>
+
+    <textarea id="input">
+[14.0,20.0,90.0,600.0,0.1,0.2,0.15,0.1,0.2,0.06,0.3,1.2,2.0,20.0,0.01,0.03,0.04,0.02,0.02,0.003,16.0,25.0,100.0,800.0,0.15,0.3,0.4,0.2,0.3,0.08]
+    </textarea>
+
+    <br>
+
+    <button onclick="predict()">Predict</button>
+
+    <p id="result"></p>
+</div>
+
+<script>
+function predict() {
+    let features = JSON.parse(document.getElementById("input").value);
+
+    fetch("https://ml-api-project-cquw.onrender.com/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({features: features})
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("result").innerText =
+            document.getElementById("result").innerText =
+    "Prediction: " + data.result +
+    " | Confidence: " + data.confidence + "%";
+    });
+}
+</script>
+
+</body>
+</html>
