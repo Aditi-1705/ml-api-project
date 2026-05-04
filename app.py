@@ -4,7 +4,15 @@ import joblib
 import numpy as np
 
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],   # allow all (fine for project/demo)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 model = joblib.load("model.pkl")
 
 # Define request schema
