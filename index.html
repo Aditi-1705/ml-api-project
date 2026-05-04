@@ -1,105 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Breast Cancer Predictor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breast Cancer Prediction</title>
 
     <style>
         body {
-            font-family: Arial;
-            background: linear-gradient(to right, #667eea, #764ba2);
-            color: white;
-            text-align: center;
-            padding: 50px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
 
-        .box {
+        .container {
             background: white;
-            color: black;
             padding: 30px;
-            border-radius: 10px;
-            width: 50%;
-            margin: auto;
+            border-radius: 12px;
+            width: 450px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         textarea {
-            width: 90%;
-            height: 100px;
-            border-radius: 5px;
+            width: 100%;
+            height: 120px;
             padding: 10px;
+            font-size: 14px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            resize: none;
         }
 
         button {
-            background: #667eea;
-            color: white;
-            border: none;
+            margin-top: 15px;
             padding: 10px 20px;
-            margin-top: 10px;
-            border-radius: 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #667eea;
+            color: white;
             cursor: pointer;
         }
 
         button:hover {
-            background: #764ba2;
+            background-color: #5a67d8;
         }
 
         #result {
             margin-top: 20px;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
+        }
+
+        #status {
+            margin-top: 10px;
+            color: orange;
+            font-size: 14px;
         }
     </style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="container">
     <h2>Breast Cancer Prediction</h2>
 
-    
+    <textarea id="input">
+[14.0,20.0,90.0,600.0,0.1,0.2,0.15,0.1,0.2,0.06,0.3,1.2,2.0,20.0,0.01,0.03,0.04,0.02,0.02,0.003,16.0,25.0,100.0,800.0,0.15,0.3,0.4,0.2,0.3,0.08]
+    </textarea>
 
+    <br>
+    <button onclick="predict()">Predict</button>
 
-<!-- UI elements -->
-<textarea id="input"></textarea>
-<button onclick="predict()">Predict</button>
-<p id="result"></p>
+    <p id="status"></p>
+    <p id="result"></p>
+</div>
 
-<!-- Script must be HERE -->
 <script>
-function predict() {
-    console.log("Trying API...");
+async function predict() {
+    const status = document.getElementById("status");
+    const result = document.getElementById("result");
+
+    status.innerText = "⏳ Contacting server... please wait";
+    result.innerText = "";
 
     let input = document.getElementById("input").value;
-
     let features;
+
+    // Validate JSON
     try {
         features = JSON.parse(input);
     } catch (e) {
-        document.getElementById("result").innerText = "Invalid input format";
+        status.innerText = "";
+        result.innerText = "❌ Invalid input format";
         return;
     }
 
-    fetch("https://ml-api-project-cquw.onrender.com/predict", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ features: features })
-    })
-    .then(res => {
-        console.log("Response received:", res);
-        return res.json();
-    })
-    .then(data => {
-        console.log("Data:", data);
+    try {
+        const response = await fetch("https://ml-api-project-cquw.onrender.com/predict", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ features: features })
+        });
 
-        document.getElementById("result").innerText =
-            "Prediction: " + data.result + " | Confidence: " + data.confidence + "%";
-    })
-    .catch(err => {
-        console.log("ERROR:", err);
-        document.getElementById("result").innerText =
-            "Backend not reachable. Wait 30 sec & try again.";
-    });
+        const data = await response.json();
+
+        status.innerText = "✅ Response received";
+
+        result.innerText =
+            "Prediction: " + data.result +
+            " | Confidence: " + data.confidence + "%";
+
+    } catch (error) {
+        console.log(error);
+
+        status.innerText = "⚠️ Server is waking up (Render free tier)";
+        result.innerText = "Try again in 20–30 seconds";
+    }
 }
 </script>
 
