@@ -5,7 +5,7 @@ import joblib
 
 app = FastAPI()
 
-# ✅ CORS FIX
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,7 +24,9 @@ class InputData(BaseModel):
 
 @app.get("/")
 def home():
-    return {"message": "Breast Cancer Prediction API"}
+    return {
+        "message": "Breast Cancer Prediction API"
+    }
 
 
 @app.post("/predict")
@@ -32,14 +34,25 @@ def predict(data: InputData):
 
     features = data.features
 
+    # Prediction
     prediction = model.predict([features])[0]
 
-    probability = model.predict_proba([features])[0][1]
+    # Confidence
+    probability = model.predict_proba([features])[0]
 
-    result = "Malignant" if prediction == 1 else "Benign"
+    # IMPORTANT FIX
+    # 0 = Malignant
+    # 1 = Benign
+
+    if prediction == 0:
+        result = "Malignant"
+        confidence = probability[0] * 100
+    else:
+        result = "Benign"
+        confidence = probability[1] * 100
 
     return {
         "prediction": int(prediction),
         "result": result,
-        "confidence": round(probability * 100, 2)
+        "confidence": round(confidence, 2)
     }
